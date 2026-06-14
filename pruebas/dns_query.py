@@ -1,27 +1,51 @@
 import socket
 
-query = bytes.fromhex(
-    "123401000001000000000000"
-    "06676f6f676c6503636f6d00"
-    "00010001"
-)
+def build_query(domain):
+    transaction_id = b"\x12\x34"
+    flags = b"\x01\x00"
+    qdcount = b"\x00\x01"
+    ancount = b"\x00\x00"
+    nscount = b"\x00\x00"
+    arcount = b"\x00\x00"
+
+    header = transaction_id + flags + qdcount + ancount + nscount + arcount
+
+    qname = b""
+    for part in domain.split("."):
+        qname += bytes([len(part)])
+        qname += part.encode()
+
+    qname += b"\x00"
+
+    qtype = b"\x00\x01"
+    qclass = b"\x00\x01"
+
+    return header + qname + qtype + qclass
+
+
+domains = [
+    "google.com",
+    "ucr.ac.cr",
+    "proyecto.local"
+]
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 sock.settimeout(5)
 
-sock.sendto(query, ("127.0.0.1", 8053))
+for domain in domains:
+    query = build_query(domain)
 
-print("Consulta DNS enviada")
+    print(f"\nConsultando: {domain}")
 
-try:
-    response, addr = sock.recvfrom(512)
+    sock.sendto(query, ("127.0.0.1", 8053))
 
-    print("\nRespuesta recibida")
-    print(f"Servidor: {addr}")
-    print(f"Tamaño: {len(response)} bytes")
-    print("\nHexadecimal:")
-    print(response.hex())
+    try:
+        response, addr = sock.recvfrom(512)
 
-except socket.timeout:
-    print("No se recibió respuesta")
+        print("Respuesta recibida")
+        print(f"Servidor: {addr}")
+        print(f"Tamaño: {len(response)} bytes")
+        print(f"Hexadecimal: {response.hex()}")
+
+    except socket.timeout:
+        print("No se recibió respuesta")

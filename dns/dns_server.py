@@ -1,6 +1,12 @@
 import socket
+import sys
+import os
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from parser_dns import parse_dns_header
 from dns_response import build_dns_response
+from detector.detector_dns import register_request
 
 HOST = "0.0.0.0"
 PORT = 8053
@@ -13,6 +19,7 @@ print(f"Servidor DNS escuchando en UDP {PORT}...")
 while True:
 
     data, addr = server_socket.recvfrom(512)
+    register_request(addr[0])
 
     print("\n================================")
     print(f"Paquete recibido desde: {addr}")
