@@ -1,23 +1,27 @@
 from collections import defaultdict
 import time
 
-requests = defaultdict(list)
+requests_by_ip = defaultdict(list)
+
+THRESHOLD = 5
+TIME_WINDOW = 10
 
 
-def register_request(ip):
-
+def register_request(ip, domain):
     current_time = time.time()
 
-    requests[ip].append(current_time)
+    requests_by_ip[ip].append(current_time)
 
-    requests[ip] = [
-        t for t in requests[ip]
-        if current_time - t < 10
+    requests_by_ip[ip] = [
+        t for t in requests_by_ip[ip]
+        if current_time - t <= TIME_WINDOW
     ]
 
-    if len(requests[ip]) > 5:
+    total_requests = len(requests_by_ip[ip])
 
+    if total_requests > THRESHOLD:
         print("\n[ALERTA]")
-        print("Posible DNS Amplification Attack")
+        print("Posible DNS Amplification Attack / DNS Flood")
         print(f"IP sospechosa: {ip}")
-        print(f"Consultas recientes: {len(requests[ip])}")
+        print(f"Dominio consultado: {domain}")
+        print(f"Consultas en los últimos {TIME_WINDOW} segundos: {total_requests}")

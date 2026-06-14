@@ -26,6 +26,7 @@ while True:
     print(f"Tamaño: {len(data)} bytes")
 
     domain = parse_dns_header(data)
+    register_request(addr[0], domain)
 
     response = build_dns_response(data, domain)
 
