@@ -1,0 +1,28 @@
+import socket
+from parser_dns import parse_dns_header
+from dns_response import build_dns_response
+
+HOST = "0.0.0.0"
+PORT = 8053
+
+server_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+server_socket.bind((HOST, PORT))
+
+print(f"Servidor DNS escuchando en UDP {PORT}...")
+
+while True:
+
+    data, addr = server_socket.recvfrom(512)
+
+    print("\n================================")
+    print(f"Paquete recibido desde: {addr}")
+    print(f"Tamaño: {len(data)} bytes")
+
+    domain = parse_dns_header(data)
+
+    response = build_dns_response(data, domain)
+
+    server_socket.sendto(response, addr)
+
+    print("Respuesta DNS enviada")
+    print("================================")
