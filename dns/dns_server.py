@@ -19,7 +19,6 @@ print(f"Servidor DNS escuchando en UDP {PORT}...")
 while True:
 
     data, addr = server_socket.recvfrom(512)
-    register_request(addr[0])
 
     print("\n================================")
     print(f"Paquete recibido desde: {addr}")
